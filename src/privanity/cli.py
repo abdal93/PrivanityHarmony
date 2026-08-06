@@ -97,8 +97,8 @@ def cmd_diff(args) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="ohm-hardener",
-                                description="OpenHarmony hardening audit toolkit")
+    p = argparse.ArgumentParser(prog="privanity",
+                                description="OpenHarmony privacy & security hardening toolkit")
     p.add_argument("--version", action="version", version=f"ohm-hardener {__version__}")
     sub = p.add_subparsers(dest="cmd", required=True)
 

@@ -1,5 +1,5 @@
 [project]
-name = "ohardener"
+name = "privanity-harmony"
 version = "0.1.0"
 description = "Privacy & security hardening toolkit for OpenHarmony-based systems"
 read = "README.md"
@@ -8,7 +8,7 @@ license = { text = "Apache-2.0" }
 dependencies = ["PyYAML>=6.0"]
 
 [project.scripts]
-ohm-hardener = "ohardener.cli:main"
+privanity = "privanity.cli:main"
 
 [build-system]
 requires = ["setuptools>=61"]

@@ -1,4 +1,4 @@
-# ohm-hardener
+# PrivanityHarmony
 
 **Privacy & security hardening toolkit for OpenHarmony-based systems.**
 
@@ -10,7 +10,7 @@ not a from-scratch OS fork.
 > **Roadmap honest note:** this project does **not** claim to be "GrapheneOS for
 > OpenHarmony." A faithful GrapheneOS-equivalent needs a hardware attestation /
 > verified-boot root-of-trust chain that OpenHarmony devices do not yet offer at
-> scale. `ohm-hardener` solves the base layer that *is* achievable and valuable:
+> scale. `privanity` solves the base layer that *is* achievable and valuable:
 > reproducible, auditable, shareable hardening for the OpenHarmony ecosystem.
 
 ## Why
@@ -30,10 +30,10 @@ fills that gap:
 ## What it does (v1)
 
 ```
-ohm-hardener audit --target </path/to/openharmony> [--baseline profiles/privacy.yaml]
-ohm-hardener score --target </path>
-ohm-hardener diff --target </path> --baseline profiles/privacy.yaml
-ohm-hardener list-profiles
+privanity audit --target </path/to/openharmony> [--baseline profiles/privacy.yaml]
+privanity score --target </path>
+privanity diff --target </path> --baseline profiles/privacy.yaml
+privanity list-profiles
 ```
 
 - **`audit`** — scans the target tree against the baseline, returns PASS/FAIL per
@@ -46,8 +46,8 @@ ohm-hardener list-profiles
 
 ```bash
 pip install -e .
-ohm-hardener list-profiles
-ohm-hardener audit --target examples/sample_tree --baseline profiles/privacy.yaml
+privanity list-profiles
+privanity audit --target examples/sample_tree --baseline profiles/privacy.yaml
 ```
 
 ## Project layout
@@ -56,7 +56,7 @@ ohm-hardener audit --target examples/sample_tree --baseline profiles/privacy.yam
 profiles/            # YAML hardening baselines (privacy, security, enterprise, ...)
 examples/sample_tree # small synthesized tree for demo/testing the tool
 tests/               # pytest suite
-src/ohardener/       # CLI + rules engine
+src/privanity/      # CLI + rules engine
 ```
 
 ## License
