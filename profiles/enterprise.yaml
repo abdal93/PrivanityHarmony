@@ -1,0 +1,53 @@
+# ohm-hardener (PrivanityHarmony) — enterprise baseline
+# Compliance-oriented profile for organizations deploying hardened OpenHarmony
+# fleets: auditability, policy lock-down, sign-off, and documentation surface.
+
+profile:
+  name: enterprise
+  version: 0.1.0
+  description: Enterprise/compliance hardening baseline (lock-down, audit trail, sign-off, documentation)
+
+controls:
+  # compliance / auditability surface
+  signed_packages:
+    patterns: ["*.hap", "*.app", "*.pem", "*.cer", "*.zip", "*.json"]
+    weight: 2.0
+  security_labels:
+    patterns: ["*selinux*", "*.te", "*.cil", "*.json", "*.xml"]
+    weight: 1.5
+  network_restrict:
+    patterns: ["*network*.json", "*profile*.json", "*.json", "*.conf"]
+    weight: 1.5
+  disable_auto_updates:
+    patterns: ["*.json", "*.xml", "*.cfg"]
+    weight: 1.5
+  enforce_strong_pin:
+    patterns: ["*lock*.json", "*auth*.json", "*.json", "*.xml"]
+    weight: 1.0
+  disable_bg_diagnostics:
+    patterns: ["*.json", "*.xml", "*.conf"]
+    weight: 1.0
+
+  # privacy controls required for enterprise posture
+  no_telemetry_sdk:
+    patterns: ["*.json", "*.xml"]
+    weight: 2.0
+  no_crash_reporting:
+    patterns: ["*.json", "*.xml"]
+    weight: 1.5
+  contacts_off:
+    patterns: ["*permission*.json", "*manifest*.xml", "*.xml", "*.json"]
+    weight: 2.0
+  location_off:
+    patterns: ["*permission*.json", "*manifest*.xml", "*.xml", "*.json"]
+    weight: 2.0
+  camera_mic_off:
+    patterns: ["*permission*.json", "*manifest*.xml", "*.xml", "*.json"]
+    weight: 2.0
+  network_profile_present:
+    patterns: ["*profile*.json", "*.json"]
+    weight: 1.5
+  remove_debug_keystore:
+    weight: 1.0
+  usage_notice_present:
+    weight: 1.0

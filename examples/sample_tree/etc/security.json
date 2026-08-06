@@ -1,0 +1,1 @@
+{"lock_screen": "pin", "require_pin": true, "password_policy": "strong", "default_policy": "deny", "securerandom": "crypto-grade"}

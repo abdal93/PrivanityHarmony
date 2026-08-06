@@ -1,6 +1,6 @@
 [project]
 name = "privanity-harmony"
-version = "0.1.0"
+version = "0.2.0"
 description = "Privacy & security hardening toolkit for OpenHarmony-based systems"
 readme = "README.md"
 requires-python = ">=3.9"

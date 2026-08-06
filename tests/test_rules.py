@@ -46,3 +46,34 @@ def test_score_bounds():
     assert s["passed"] + s["failed"] + s["info"] == len(results)
     assert s["passed"] == 5
     assert s["failed"] == 4
+
+
+def test_security_profile_runs():
+    b = yaml.safe_load(
+        (Path(__file__).resolve().parent.parent / "profiles" / "security.yaml").read_text()
+    )
+    results = run_baseline(SAMPLE, b)
+    by_id = {r.control_id: r.status for r in results}
+    # new security controls should PASS against the enriched sample tree
+    assert by_id["signed_packages"] == "pass"
+    assert by_id["security_labels"] == "pass"
+    assert by_id["network_restrict"] == "pass"
+    assert by_id["enforce_strong_pin"] == "pass"
+    assert by_id["mtu_weak_random"] == "pass"
+    # telemetry still intentionally fails (un-hardened demo artifacts)
+    assert by_id["no_telemetry_sdk"] == "fail"
+
+
+def test_enterprise_profile_loads():
+    b = yaml.safe_load(
+        (Path(__file__).resolve().parent.parent / "profiles" / "enterprise.yaml").read_text()
+    )
+    results = run_baseline(SAMPLE, b)
+    assert len(results) >= 6
+
+
+def test_all_new_rules_defined():
+    from privanity.rules import CHECKS
+    for cid in ["signed_packages", "security_labels", "mtu_weak_random",
+                "network_restrict", "disable_bg_diagnostics", "enforce_strong_pin"]:
+        assert cid in CHECKS, f"{cid} not registered"

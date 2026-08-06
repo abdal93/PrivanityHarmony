@@ -30,9 +30,9 @@ fills that gap:
 ## What it does (v1)
 
 ```
-privanity audit --target </path/to/openharmony> [--baseline profiles/privacy.yaml]
+privanity audit --target </path/to/openharmony> [--baseline profiles/security.yaml]
 privanity score --target </path>
-privanity diff --target </path> --baseline profiles/privacy.yaml
+privanity diff --target </path> --baseline profiles/enterprise.yaml
 privanity list-profiles
 ```
 
@@ -41,6 +41,17 @@ privanity list-profiles
 - **`score`** — weighted security/privacy score (0–100) + per-category breakdown.
 - **`diff`** — shows exactly which controls are un-met (the "what to fix" list).
 - **`list-profiles`** — shows available built-in profiles.
+
+## Built-in profiles
+
+| Profile | Focus | Example controls |
+|---|---|---|
+| `privacy` | Telemetry off, permissions gated, updates user-controlled | no telemetry SDK, contacts/location/camera-mic deny, auto-update |
+| `security` | Privacy + signing, SELinux labels, crypto RNG, strong PIN, network default-deny | signed packages, security labels, weak-RNG, restrict network |
+| `enterprise` | Compliance/audit posture, lock-down, sign-off | strong auth, diagnostics off, package signing, audit trail |
+
+Profiles are **composable** — a stricter profile carries forward the privacy
+controls it needs. Add your own by dropping a YAML in `profiles/`.
 
 ## Quick start
 

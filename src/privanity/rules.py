@@ -109,7 +109,68 @@ CHECKS = {
         "check": lambda t, cfg: ("pass", "PRIVACY.md present") if _file_exists(
             t, ["PRIVACY*.md", "privacy*.md"]) else ("fail", "no privacy notice"),
     },
+    # --- additional security rules (v1.1) ---
+    "signed_packages": {
+        "title": "Installable packages are signed (no unsigned/self-signed baseline)",
+        "category": "signing",
+        "weight": 1.5,
+        "check": lambda t, cfg: _check_signed(t, cfg),
+    },
+    "security_labels": {
+        "title": "SELinux/security labels enforced (no permissive/unconfined policy)",
+        "category": "security",
+        "weight": 1.5,
+        "check": lambda t, cfg: _check_notext(t, cfg, ["permissive", "unconfined", "setenforce 0"]),
+    },
+    "mtu_weak_random": {
+        "title": "No weak/static PRNG seeding (crypto-grade randomness)",
+        "category": "security",
+        "weight": 1.0,
+        "check": lambda t, cfg: _check_notext(t, cfg, ["srand(1)", "random.seed(1)", "static_seed", "insecure_rng"]),
+    },
+    "network_restrict": {
+        "title": "Network default-deny / firewall policy restrictively configured",
+        "category": "network",
+        "weight": 1.5,
+        "check": lambda t, cfg: _check_hastext(t, cfg, ["default_policy\": \"deny", "policy: deny", "firewalld", "ufw enable", "default: deny"]),
+    },
+    "disable_bg_diagnostics": {
+        "title": "Background diagnostic/feedback collection disabled",
+        "category": "telemetry",
+        "weight": 1.0,
+        "check": lambda t, cfg: _check_notext(t, cfg, ["diagnostic_feedback", "usage_report", "send_diagnostics"]),
+    },
+    "enforce_strong_pin": {
+        "title": "Strong auth (PIN/lock) enforced (no set_none/password_policy off)",
+        "category": "security",
+        "weight": 1.0,
+        "check": lambda t, cfg: _check_notext(t, cfg, ["password_policy\": \"none", "require_pin\": false", "lock_screen\": \"none\""]),
+    },
 }
+
+
+def _check_signed(target: Path, cfg: dict) -> tuple[str, str]:
+    pats = cfg.get("patterns", ["*.hap", "*.app", "*.pem", "*.cer", "*.zip"])
+    sigfiles = _scan_files(target, "*.cer")
+    certs = _scan_files(target, "*.pem")
+    haps = _scan_files(target, "*.hap")
+    if sigfiles or certs:
+        return ("pass", f"signing certs present ({len(sigfiles) + len(certs)} found)")
+    if not haps:
+        return ("info", "no installable packages found — treat as unverified")
+    return ("fail", "installable packages present but no signing certs found")
+
+
+def _check_notext(target: Path, cfg: dict, needles: list[str]) -> tuple[str, str]:
+    if _scan_text_needles(target, cfg, needles):
+        return ("fail", f"weak-config token present: {needles}")
+    return ("pass", "no weak-config tokens found")
+
+
+def _check_hastext(target: Path, cfg: dict, needles: list[str]) -> tuple[str, str]:
+    if _scan_text_needles(target, cfg, needles):
+        return ("pass", "restrictive policy token present")
+    return ("fail", "no restrictive policy found")
 
 
 def _scan_text_needles(target: Path, cfg: dict, needles: list[str]) -> bool:
