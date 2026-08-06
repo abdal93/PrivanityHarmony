@@ -1,0 +1,21 @@
+[project]
+name = "ohardener"
+version = "0.1.0"
+description = "Privacy & security hardening toolkit for OpenHarmony-based systems"
+read = "README.md"
+requires-python = ">=3.9"
+license = { text = "Apache-2.0" }
+dependencies = ["PyYAML>=6.0"]
+
+[project.scripts]
+ohm-hardener = "ohardener.cli:main"
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

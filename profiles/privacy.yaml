@@ -1,0 +1,41 @@
+# ohm-hardener — privacy baseline
+# A reproducibility-oriented hardening baseline for OpenHarmony-based systems.
+# Every control is a named check in src/ohardener/rules.py; the YAML only
+# configures matching patterns and weights. Tracked, diffable, versioned.
+
+profile:
+  name: privacy
+  version: 0.1.0
+  description: Privacy-first hardening baseline (telemetry off, risky permissions gated, updates user-controlled)
+
+controls:
+  # --- telemetry ---
+  no_telemetry_sdk:
+    patterns: ["*.json", "*.xml"]
+    weight: 2.0
+  no_crash_reporting:
+    patterns: ["*.json", "*.xml"]
+    weight: 1.5
+
+  # --- privacy / permissions ---
+  contacts_off:
+    patterns: ["*permission*.json", "*manifest*.xml", "*.xml", "*.json"]
+    weight: 2.0
+  location_off:
+    patterns: ["*permission*.json", "*manifest*.xml", "*.xml", "*.json"]
+    weight: 2.0
+  camera_mic_off:
+    patterns: ["*permission*.json", "*manifest*.xml", "*.xml", "*.json"]
+    weight: 2.0
+
+  # --- network / updates / signing ---
+  network_profile_present:
+    patterns: ["*profile*.json", "*.json"]
+    weight: 1.5
+  disable_auto_updates:
+    patterns: ["*.json", "*.xml", "*.cfg"]
+    weight: 1.5
+  remove_debug_keystore:
+    weight: 1.0
+  usage_notice_present:
+    weight: 0.5

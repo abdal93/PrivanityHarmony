@@ -1,0 +1,5 @@
+{
+  "link": "third_party_analytics_sdk",
+  "report_engine": "enabled",
+  "crash_sdk": "auto"
+}

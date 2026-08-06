@@ -1,0 +1,5 @@
+{
+  "ohos.permission.LOCATION": "deny",
+  "ohos.permission.CAMERA": "deny",
+  "ohos.permission.MICROPHONE": "deny"
+}
