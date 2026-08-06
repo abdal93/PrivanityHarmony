@@ -72,4 +72,4 @@ src/privanity/      # CLI + rules engine
 
 ## License
 
-Apache-2.0 — see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE). Copyright (c) 2026 Abdel YOUSFI.
