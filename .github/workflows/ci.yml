@@ -21,4 +21,4 @@ jobs:
         run: pytest -v
       - name: Smoke audit
         run: |
-          ohm-hardener audit --target examples/sample_tree --baseline profiles/privacy.yaml --format json
+          privanity audit --target examples/sample_tree --baseline profiles/privacy.yaml --format json
