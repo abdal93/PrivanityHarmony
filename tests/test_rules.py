@@ -77,3 +77,27 @@ def test_all_new_rules_defined():
     for cid in ["signed_packages", "security_labels", "mtu_weak_random",
                 "network_restrict", "disable_bg_diagnostics", "enforce_strong_pin"]:
         assert cid in CHECKS, f"{cid} not registered"
+
+
+def test_iot_profile_runs():
+    iot = Path(__file__).resolve().parent.parent / "examples" / "iot_tree"
+    b = yaml.safe_load(
+        (Path(__file__).resolve().parent.parent / "profiles" / "iot.yaml").read_text()
+    )
+    results = run_baseline(iot, b)
+    by_id = {r.control_id: r.status for r in results}
+    # hardened IoT controls should PASS (radio deny, sensor deny, secure boot, signed OTA)
+    assert by_id["radio_default_deny"] == "pass"
+    assert by_id["sensor_egress_off"] == "pass"
+    assert by_id["secure_boot_stamp"] == "pass"
+    assert by_id["iot_updates_authorized"] == "pass"
+    # intentionally un-hardened artifacts must FAIL (telnet + telemetry)
+    assert by_id["io_telnet_disabled"] == "fail"
+    assert by_id["no_telemetry_sdk"] == "fail"
+
+
+def test_iot_controls_registered():
+    from privanity.rules import CHECKS
+    for cid in ["radio_default_deny", "sensor_egress_off", "secure_boot_stamp",
+                "io_telnet_disabled", "iot_updates_authorized"]:
+        assert cid in CHECKS, f"{cid} not registered"

@@ -49,6 +49,7 @@ privanity list-profiles
 | `privacy` | Telemetry off, permissions gated, updates user-controlled | no telemetry SDK, contacts/location/camera-mic deny, auto-update |
 | `security` | Privacy + signing, SELinux labels, crypto RNG, strong PIN, network default-deny | signed packages, security labels, weak-RNG, restrict network |
 | `enterprise` | Compliance/audit posture, lock-down, sign-off | strong auth, diagnostics off, package signing, audit trail |
+| `iot` | **IoT/embedded device** hardening | radio default-deny, sensor egress off, secure boot, signed OTA, no telnet |
 
 Profiles are **composable** — a stricter profile carries forward the privacy
 controls it needs. Add your own by dropping a YAML in `profiles/`.

@@ -1,0 +1,6 @@
+{
+  "wifi": "off",
+  "bt": "off",
+  "default_radio": "deny",
+  "connection": "deny"
+}

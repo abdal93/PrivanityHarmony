@@ -1,0 +1,6 @@
+{
+  "secure_boot": true,
+  "bootloader_locked": true,
+  "rollback_protection": true,
+  "verified_boot": "enable"
+}

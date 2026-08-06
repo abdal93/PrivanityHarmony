@@ -1,0 +1,53 @@
+# ohm-hardener (PrivanityHarmony) — IoT profile
+# Baseline for OpenHarmony-based IoT / embedded device images.
+# Composes the IoT-specific device controls on top of the privacy essentials.
+# Honest scope: this audits/verifies device hardening. It is NOT an anonymity
+# layer — hardware/network anonymity for fielded devices is a separate,
+# device-specific program (see README roadmap note).
+
+profile:
+  name: iot
+  version: 0.1.0
+  description: IoT/embedded device hardening baseline (radio deny, sensor egress off, secure boot, signed OTA, no telnet)
+
+controls:
+  # --- IoT device rules ---
+  radio_default_deny:
+    patterns: ["*radio*.json", "*wifi*.json", "*bt*.json", "*net*.json", "*profile*.json", "*.json", "*.conf"]
+    weight: 2.0
+  sensor_egress_off:
+    patterns: ["*sensor*.json", "*permission*.json", "*audio*.json", "*camera*.json", "*.json", "*.xml", "*.conf"]
+    weight: 2.0
+  secure_boot_stamp:
+    patterns: ["*boot*.json", "*verified*.json", "*firmware*.json", "*.cfg", "*.conf", "*.json", "*.xml"]
+    weight: 2.0
+  io_telnet_disabled:
+    patterns: ["*.json", "*.conf", "*.xml", "*.cfg"]
+    weight: 1.5
+  iot_updates_authorized:
+    patterns: ["*ota*.json", "*update*.json", "*.json", "*.xml", "*.conf"]
+    weight: 1.5
+
+  # --- privacy/security essentials carried forward ---
+  no_telemetry_sdk:
+    patterns: ["*.json", "*.xml"]
+    weight: 2.0
+  no_crash_reporting:
+    patterns: ["*.json", "*.xml"]
+    weight: 1.5
+  security_labels:
+    patterns: ["*selinux*", "*.te", "*.cil", "*.json", "*.xml"]
+    weight: 1.5
+  signed_packages:
+    patterns: ["*.hap", "*.app", "*.pem", "*.cer", "*.zip", "*.json"]
+    weight: 2.0
+  remove_debug_keystore:
+    weight: 1.0
+  mtu_weak_random:
+    patterns: ["*.json", "*.c", "*.cpp", "*.py", "*.toml", "*.cfg"]
+    weight: 1.0
+  disable_bg_diagnostics:
+    patterns: ["*.json", "*.xml", "*.conf"]
+    weight: 1.0
+  usage_notice_present:
+    weight: 0.5

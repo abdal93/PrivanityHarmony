@@ -1,0 +1,7 @@
+{
+  "microphone": "deny",
+  "camera": "deny",
+  "sensor": "deny",
+  "recording": "deny",
+  "acquisition": "deny"
+}

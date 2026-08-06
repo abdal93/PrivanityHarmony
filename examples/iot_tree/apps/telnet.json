@@ -1,0 +1,4 @@
+{
+  "bad": "attacker_opened_telnetd_on_port_23",
+  "log": "enable_telnet\": true"
+}

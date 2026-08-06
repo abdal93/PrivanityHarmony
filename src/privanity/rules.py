@@ -146,7 +146,126 @@ CHECKS = {
         "weight": 1.0,
         "check": lambda t, cfg: _check_notext(t, cfg, ["password_policy\": \"none", "require_pin\": false", "lock_screen\": \"none\""]),
     },
+    # --- IoT device rules ---
+    "radio_default_deny": {
+        "title": "Wireless radios (Wi-Fi/BT/LoRa/cell) default-deny or gated by explicit pin",
+        "category": "network",
+        "weight": 1.5,
+        "check": lambda t, cfg: _check_iot_radio(t, cfg),
+    },
+    "sensor_egress_off": {
+        "title": "Sensor microphones/cameras/telemetry acquisition gated off-by-default",
+        "category": "privacy",
+        "weight": 1.5,
+        "check": lambda t, cfg: _check_iot_sensor(t, cfg),
+    },
+    "secure_boot_stamp": {
+        "title": "Verified-boot / firmware signing configuration present (device boot chain)",
+        "category": "signing",
+        "weight": 2.0,
+        "check": lambda t, cfg: _check_secureboot(t, cfg),
+    },
+    "io_telnet_disabled": {
+        "title": "Telnet / unauthenticated remote management disabled",
+        "category": "security",
+        "weight": 1.5,
+        "check": lambda t, cfg: _check_notext(t, cfg, ["telnetd", "enable_telnet\": true", "allow_noauth_ssh\": true", "unauthenticated_telnet"]),
+    },
+    "iot_updates_authorized": {
+        "title": "Firmware OTA updates require signed/authenticated source",
+        "category": "updates",
+        "weight": 1.5,
+        "check": lambda t, cfg: _check_authorized_ota(t, cfg),
+    },
 }
+
+
+def _check_iot_radio(target: Path, cfg: dict) -> tuple[str, str]:
+    # Look for radio/policy config: if a deny or gated policy exists → pass.
+    hay = cfg.get("patterns", ["*radio*.json", "*wifi*.json", "*bt*.json", "*net*.json", "*profile*.json", "*.json", "*.conf"])
+    # PASS if we find a restrictive radio policy (deny/by-pin), FAIL if we only
+    # find radios configured permissive.
+    text_acc = ""
+    hit_file = False
+    for pat in hay:
+        for p in _scan_files(target, pat):
+            hit_file = True
+            text_acc += _read_text(p).lower()
+    if not hit_file:
+        return "info", "no radio policy found — treat as unverified"
+    restrictive = any(tok in text_acc for tok in [
+        "default_radio\": \"deny", "radios\": [\"none\"]", "wifi\": \"off\"",
+        "bt\": \"off\"", "policy\": \"deny", "radio\": \"deny", "connection\": \"deny",
+    ])
+    permissive = any(tok in text_acc for tok in [
+        "wifi\": \"on\", \"bt\": \"on\"", "radios\": \"all\"", "wifi\": \"always\"",
+        "bt\": \"always\"", "radio\": \"allow", "policy\": \"allow",
+    ])
+    if restrictive:
+        return "pass", "radio policy is deny/gated"
+    if permissive:
+        return "fail", "radios configured permissive (no deny/gate)"
+    return "info", "radio policy ambiguous — treat as unverified"
+
+
+def _check_iot_sensor(target: Path, cfg: dict) -> tuple[str, str]:
+    pats = cfg.get("patterns", ["*sensor*.json", "*permission*.json", "*audio*.json", "*camera*.json", "*.json", "*.xml", "*.conf"])
+    acc = ""
+    hit = False
+    for pat in pats:
+        for p in _scan_files(target, pat):
+            hit = True
+            acc += _read_text(p).lower()
+    if not hit:
+        return "info", "no sensor/acquisition policy — treat as unverified"
+    deny_toks = ["mic\": \"deny", "microphone\": \"deny", "camera\": \"deny",
+                 "sensor\": \"deny", "acquisition\": \"deny", "mics\": [\"none\"]",
+                 "\"recording\": \"deny\""]
+    allow_toks = ["mic\": \"on", "microphone\": \"on", "camera\": \"on",
+                  "sensor\": \"on", "\"recording\": \"on\""]
+    if any(d in acc for d in deny_toks):
+        return "pass", "sensor acquisition gated to deny"
+    if any(a in acc for a in allow_toks):
+        return "fail", "sensor/mic/camera configured on by default"
+    return "info", "sensor policy ambiguous — treat as unverified"
+
+
+def _check_secureboot(target: Path, cfg: dict) -> tuple[str, str]:
+    pats = cfg.get("patterns", ["*boot*.json", "*verified*.json", "*firmware*.json", "*.cfg", "*.conf", "*.json", "*.xml"])
+    acc = ""
+    hit = False
+    for pat in pats:
+        for p in _scan_files(target, pat):
+            hit = True
+            acc += _read_text(p).lower()
+    if not hit:
+        return "info", "no boot/verified config found — treat as unverified"
+    have = any(tok in acc for tok in [
+        "verified_boot", "secure_boot\": true", "bootloader_locked", "secureboot",
+        "firmware_sign\": true", "key_verified", "rollback_protection",
+    ])
+    if have:
+        return "pass", "secure/verified boot configuration present"
+    return "fail", "no secure/verified boot config found"
+
+
+def _check_authorized_ota(target: Path, cfg: dict) -> tuple[str, str]:
+    pats = cfg.get("patterns", ["*ota*.json", "*update*.json", "*.json", "*.xml", "*.conf"])
+    acc = ""
+    hit = False
+    for pat in pats:
+        for p in _scan_files(target, pat):
+            hit = True
+            acc += _read_text(p).lower()
+    if not hit:
+        return "info", "no OTA config found — treat as unverified"
+    auth = any(tok in acc for tok in ["signed_ota", "ota_signature_verify", "signature_required", "ota_auth\": true"])
+    open_all = any(tok in acc for tok in ["ota\": \"allow_unsigned\", \"signature_check\": false", "allow_unsigned_ota"])
+    if auth:
+        return "pass", "OTA updates require signed/authenticated source"
+    if open_all:
+        return "fail", "OTA allows unsigned/unauthenticated updates"
+    return "info", "OTA policy ambiguous — treat as unverified"
 
 
 def _check_signed(target: Path, cfg: dict) -> tuple[str, str]:

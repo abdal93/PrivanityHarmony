@@ -1,0 +1,6 @@
+{
+  "ota_auth": true,
+  "signed_ota": true,
+  "ota_signature_verify": true,
+  "signature_required": true
+}
